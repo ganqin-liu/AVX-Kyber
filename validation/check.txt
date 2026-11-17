@@ -1,0 +1,33 @@
+python3 tools/build_single.py --jobs 2
+python3 tools/build_upstream.py
+single-request dependencies verified
+touch build/single.stamp
+cc -DKYBER_K=3 -Isrc -Ivendor/internal-kyber/avx2 -Ibuild/single/wolf-arithmetic -Ibuild/single/wolf-source -Ibuild/single/oqs/include -O3 -march=native -mtune=native -fomit-frame-pointer -Wall -Wextra -pthread tests/test_poly4.c build/poly4.o build/ref_ntt.o build/ref_reduce.o -pthread -Wl,-z,noexecstack -o build/test_poly4
+cc -DKYBER_K=3 -Isrc -Ivendor/internal-kyber/avx2 -Ibuild/single/wolf-arithmetic -Ibuild/single/wolf-source -Ibuild/single/oqs/include -O3 -march=native -mtune=native -fomit-frame-pointer -Wall -Wextra -pthread tests/test_poly8.c build/poly8.o build/ref_ntt.o build/ref_reduce.o -pthread -Wl,-z,noexecstack -o build/test_poly8
+cc -DKYBER_K=3 -Isrc -Ivendor/internal-kyber/avx2 -Ibuild/single/wolf-arithmetic -Ibuild/single/wolf-source -Ibuild/single/oqs/include -O3 -march=native -mtune=native -fomit-frame-pointer -Wall -Wextra -pthread tests/hashschedtest.c build/fips202x8.o build/mlkem_hash_spwords.o -pthread -Wl,-z,noexecstack -lcrypto -o build/hashschedtest
+cc -DKYBER_K=3 -Isrc -Ivendor/internal-kyber/avx2 -Ibuild/single/wolf-arithmetic -Ibuild/single/wolf-source -Ibuild/single/oqs/include -O3 -march=native -mtune=native -fomit-frame-pointer -Wall -Wextra -pthread -MMD -MP -c src/mlkem_single.c -o build/mlkem_single.o
+cc -DKYBER_K=3 -Isrc -Ivendor/internal-kyber/avx2 -Ibuild/single/wolf-arithmetic -Ibuild/single/wolf-source -Ibuild/single/oqs/include -O3 -march=native -mtune=native -fomit-frame-pointer -Wall -Wextra -pthread -MMD -MP -c src/mlkem_b8.c -o build/mlkem_b8.o
+ar rcs build/libavxkyber.a build/mlkem_single.o build/mlkem_b8.o build/mlkem_b8f.o build/mlkem_b4.o build/mlkem_b4dec.o build/poly4.o build/poly8.o build/fips202x8.o build/mlkem_hash_spwords.o build/mlkem_enc_flow.o build/avx2_kem.o build/avx2_indcpa.o build/avx2_polyvec.o build/avx2_poly.o build/avx2_consts.o build/avx2_rejsample.o build/avx2_cbd.o build/avx2_verify.o build/avx2_fips202.o build/avx2_fips202x4.o build/avx2_symmetric-shake.o build/avx2_randombytes.o build/avx2_fq.o build/avx2_shuffle.o build/avx2_ntt.o build/avx2_invntt.o build/avx2_basemul.o build/keccak4x.o build/ref_ntt.o build/ref_reduce.o
+cc -DKYBER_K=3 -Isrc -Ivendor/internal-kyber/avx2 -Ibuild/single/wolf-arithmetic -Ibuild/single/wolf-source -Ibuild/single/oqs/include -O3 -march=native -mtune=native -fomit-frame-pointer -Wall -Wextra -pthread tests/encflowtest.c build/libavxkyber.a -pthread -Wl,-z,noexecstack -lcrypto -o build/encflowtest
+{"status": "PASS", "object_sha256": "723e6b21398aefd923e1edc115827e6b38c5ec0a3c5e5683c8843fd7fd866a1e", "symbols_renamed": 89}
+cc -DKYBER_K=3 -Isrc -Ivendor/internal-kyber/avx2 -Ibuild/single/wolf-arithmetic -Ibuild/single/wolf-source -Ibuild/single/oqs/include -O3 -march=native -mtune=native -fomit-frame-pointer -Wall -Wextra -pthread tests/test_kernels.c build/libavxkyber.a build/pqcrystals/pqcrystals.o build/single/wolf-arithmetic/src/.libs/libwolfssl.a build/single/oqs-private.o -pthread -Wl,-z,noexecstack -lcrypto -o build/test_kernels
+./build/test_kernels
+PASS B1/B4/B8: 64 heterogeneous Encaps, 8 key rebindings, all 256 rejection masks per key vs pristine pq-crystals
+enc=oqs-avx512vl dec=wolf-avx512-fused static_key=encoded_import_prepared
+AVX_KYBER_SINGLE_ENC=wolf ./build/test_kernels
+PASS B1/B4/B8: 64 heterogeneous Encaps, 8 key rebindings, all 256 rejection masks per key vs pristine pq-crystals
+enc=wolf-avx512-mixed-fused dec=wolf-avx512-fused static_key=encoded_import_prepared
+AVX_KYBER_SINGLE_ENC=oqs ./build/test_kernels
+PASS B1/B4/B8: 64 heterogeneous Encaps, 8 key rebindings, all 256 rejection masks per key vs pristine pq-crystals
+enc=oqs-avx512vl dec=wolf-avx512-fused static_key=encoded_import_prepared
+AVX_KYBER_SINGLE_ENC=legacy AVX_KYBER_SINGLE_DEC=legacy ./build/test_kernels
+PASS B1/B4/B8: 64 heterogeneous Encaps, 8 key rebindings, all 256 rejection masks per key vs pristine pq-crystals
+enc=pqcrystals-avx2 dec=cached-avx2 static_key=encoded_import_prepared
+./build/test_poly4
+{"check":"poly4","layout":true,"forward_vectors":1024,"inverse_vectors":1024,"basemul_vectors":1024,"boundaries":true}
+./build/test_poly8
+test_poly8 ok (50 iters + 96 basemul edge/layout cases)
+./build/encflowtest
+flowcheck PASS: H/G/7 PRFs/matrix, early/middle/late refill seeds rotated across all lanes, simultaneous short lanes
+./build/hashschedtest
+hashschedtest: PASS (66 patterns, full states, G/PRF/J and spwords/layout/guards)
